@@ -63,87 +63,90 @@ export default function CreateEvent() {
   }
 
   return (
-    <section className="max-w-xl">
-      <h1 className="text-2xl font-bold text-white">Create Event</h1>
-      <p className="mt-1 text-slate-400">
-        List a new event on-chain. Transaction gas is sponsored via UGF (Mock USD).
+    <section className="max-w-xl py-2">
+      <h1 className="text-2xl font-bold text-slate-950">Create Event</h1>
+      <p className="mt-1 text-slate-500">
+        List a new event on-chain. Transaction gas is fully sponsored via UGF (Mock USD).
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <label className="block">
-          <span className="text-sm text-slate-400">Event name</span>
+      <form onSubmit={handleSubmit} className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-5">
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold text-slate-700">Event name</span>
           <input
             required
+            placeholder="e.g. Ticketing Hackathon 2026"
             value={form.name}
             onChange={update('name')}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 placeholder-slate-400 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
           />
         </label>
-        <label className="block">
-          <span className="text-sm text-slate-400">Description</span>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold text-slate-700">Description</span>
           <textarea
             required
             rows={3}
+            placeholder="Describe your event, ticket inclusions, etc."
             value={form.description}
             onChange={update('description')}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 placeholder-slate-400 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
           />
         </label>
-        <label className="block">
-          <span className="text-sm text-slate-400">Venue</span>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold text-slate-700">Venue</span>
           <input
             required
+            placeholder="e.g. Silicon Valley Center or Online"
             value={form.venue}
             onChange={update('venue')}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 placeholder-slate-400 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
           />
         </label>
-        <label className="block">
-          <span className="text-sm text-slate-400">Date & time</span>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-semibold text-slate-700">Date & time</span>
           <input
             required
             type="datetime-local"
             value={form.eventDate}
             onChange={update('eventDate')}
-            className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
           />
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm text-slate-400">Ticket price (ETH)</span>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-semibold text-slate-700">Ticket price (ETH)</span>
             <input
               type="number"
               min="0"
               step="0.0001"
               value={form.ticketPrice}
               onChange={update('ticketPrice')}
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
             />
           </label>
-          <label className="block">
-            <span className="text-sm text-slate-400">Max tickets</span>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-semibold text-slate-700">Max tickets</span>
             <input
               required
               type="number"
               min="1"
               value={form.maxTickets}
               onChange={update('maxTickets')}
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-slate-900 focus:border-slate-950 focus:bg-white focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all duration-150"
             />
           </label>
         </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm font-medium text-red-650">{error}</p>}
         {success && ugfResult?.txHash && (
-          <p className="text-sm text-emerald-400">
-            Event created —{' '}
+          <p className="text-sm font-semibold text-emerald-600">
+            Event created successfully! —{' '}
             <a
               href={explorerTxUrl(ugfResult.txHash)}
               target="_blank"
               rel="noreferrer"
-              className="underline"
+              className="underline hover:text-emerald-700"
             >
-              View tx
+              View transaction
             </a>
           </p>
         )}
@@ -151,7 +154,7 @@ export default function CreateEvent() {
         <button
           type="submit"
           disabled={!isConnected || !isContractConfigured() || loading}
-          className="rounded-lg bg-base-blue px-5 py-2.5 font-medium text-white hover:opacity-90 disabled:opacity-40"
+          className="w-full rounded-lg bg-slate-950 px-5 py-3 font-semibold text-white hover:bg-black active:scale-[0.99] transition-all shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed"
         >
           {loading ? 'Opening UGF…' : 'Create Event'}
         </button>

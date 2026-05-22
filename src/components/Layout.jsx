@@ -14,21 +14,21 @@ export default function Layout() {
   const { pathname } = useLocation()
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4">
-          <Link to="/" className="text-xl font-bold tracking-tight text-white">
-            Ticket<span className="text-base-blue">Chain</span>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-4">
+          <Link to="/" className="text-xl font-extrabold tracking-tight text-slate-950 transition-opacity hover:opacity-90">
+            Ticket<span className="text-base-blue font-black">Chain</span>
           </Link>
           <nav className="flex flex-wrap gap-1">
             {navLinks.map(({ to, label }) => (
               <Link
                 key={to}
                 to={to}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                   pathname === to
-                    ? 'bg-base-blue text-white'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'
                 }`}
               >
                 {label}
@@ -38,7 +38,7 @@ export default function Layout() {
           <ConnectWallet />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         <ContractBanner />
         <Outlet />
       </main>

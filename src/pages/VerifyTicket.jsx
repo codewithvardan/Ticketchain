@@ -71,11 +71,11 @@ export default function VerifyTicket() {
   }, [ugfResult])
 
   return (
-    <section className="max-w-xl">
-      <h1 className="text-2xl font-bold text-white">Verify Ticket</h1>
-      <p className="mt-1 text-slate-400">
+    <section className="max-w-xl py-2">
+      <h1 className="text-2xl font-bold text-slate-950">Verify Ticket</h1>
+      <p className="mt-1 text-slate-500">
         Look up an NFT ticket by ID, then scan at the door via{' '}
-        <code className="text-slate-300">verifyTicket()</code>.
+        <code className="rounded bg-slate-100 border border-slate-200/85 px-1.5 py-0.5 text-xs text-slate-750 font-mono">verifyTicket()</code>.
       </p>
 
       <form onSubmit={handlePreview} className="mt-6 flex gap-2">
@@ -86,42 +86,44 @@ export default function VerifyTicket() {
           placeholder="Token ID"
           value={tokenId}
           onChange={(e) => setTokenId(e.target.value)}
-          className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+          className="flex-1 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-slate-900 placeholder-slate-400 focus:border-slate-950 focus:ring-1 focus:ring-slate-950 focus:outline-none transition-all shadow-sm"
         />
         <button
           type="submit"
           disabled={loading || !isContractConfigured()}
-          className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-white hover:bg-slate-800 disabled:opacity-40"
+          className="rounded-lg bg-slate-950 px-5 py-2 text-sm font-semibold text-white hover:bg-black active:scale-95 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Lookup
         </button>
       </form>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {error && <p className="mt-4 text-sm font-semibold text-red-650">{error}</p>}
 
       {preview && (
-        <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 className="font-semibold text-white">Ticket #{preview.tokenId}</h2>
-          <dl className="mt-3 space-y-2 text-sm text-slate-300">
-            <div>
-              <dt className="text-slate-500">Event</dt>
-              <dd>{preview.event.name}</dd>
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="font-bold text-slate-950 text-lg border-b border-slate-100 pb-3">Ticket #{preview.tokenId}</h2>
+          <dl className="mt-4 space-y-3.5 text-sm text-slate-700">
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Event</dt>
+              <dd className="font-semibold text-slate-800">{preview.event.name}</dd>
             </div>
-            <div>
-              <dt className="text-slate-500">Venue</dt>
-              <dd>{preview.event.venue}</dd>
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Venue</dt>
+              <dd className="font-semibold text-slate-800">{preview.event.venue}</dd>
             </div>
-            <div>
-              <dt className="text-slate-500">Date</dt>
-              <dd>{formatDate(preview.event.eventDate)}</dd>
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Date</dt>
+              <dd className="font-semibold text-slate-800">{formatDate(preview.event.eventDate)}</dd>
             </div>
-            <div>
-              <dt className="text-slate-500">Holder</dt>
-              <dd className="font-mono text-xs break-all">{preview.owner}</dd>
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Holder</dt>
+              <dd className="font-mono text-xs font-medium text-slate-500 break-all">{preview.owner}</dd>
             </div>
-            <div>
-              <dt className="text-slate-500">Status</dt>
-              <dd>{preview.verified ? 'Already scanned' : 'Not yet scanned'}</dd>
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Status</dt>
+              <dd className={`font-semibold ${preview.verified ? 'text-amber-600' : 'text-emerald-600'}`}>
+                {preview.verified ? 'Already scanned' : 'Valid — Not yet scanned'}
+              </dd>
             </div>
           </dl>
 
@@ -129,7 +131,7 @@ export default function VerifyTicket() {
             type="button"
             onClick={handleVerifyOnChain}
             disabled={!isConnected || loading}
-            className="mt-4 rounded-lg bg-base-blue px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-40"
+            className="mt-5 w-full rounded-lg bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-black active:scale-95 transition-all shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed"
           >
             {loading ? 'Opening UGF…' : 'Scan Ticket (verifyTicket)'}
           </button>
@@ -137,15 +139,15 @@ export default function VerifyTicket() {
       )}
 
       {result?.txHash && (
-        <p className="mt-4 text-sm text-emerald-400">
+        <p className="mt-4 text-sm font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3 shadow-sm">
           {result.message} —{' '}
           <a
             href={explorerTxUrl(result.txHash)}
             target="_blank"
             rel="noreferrer"
-            className="underline"
+            className="underline hover:text-emerald-700"
           >
-            View tx
+            View scan transaction
           </a>
         </p>
       )}
