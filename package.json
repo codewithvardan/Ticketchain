@@ -12,7 +12,7 @@
     "deploy": "node scripts/deploy-ugf.cjs",
     "deploy:eth": "hardhat run scripts/deploy.cjs --network baseSepolia",
     "deploy:auto": "node scripts/auto-deploy.cjs",
-    "deploy:local": "hardhat run scripts/deploy.cjs --network hardhat"
+    "deploy:local": "hardhat run scripts/deploy.cjs --network localhost"
   },
   "dependencies": {
     "@tychilabs/react-ugf": "^2.0.0",

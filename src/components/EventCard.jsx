@@ -3,28 +3,44 @@ import { formatDate, formatEth } from '../utils/format'
 import { useWallet } from '../context/WalletContext'
 import { useUGFTransaction } from '../hooks/useUGFTransaction'
 import { explorerTxUrl } from '../utils/contract'
+import { buyDemoTicket } from '../utils/demo'
 
-export default function EventCard({ event }) {
-  const { isConnected } = useWallet()
-  const { executeContract, ugfResult } = useUGFTransaction()
+export default function EventCard({ event, onBuySuccess }) {
+  const { isConnected, demoMode, chainId, address } = useWallet()
+  const { executeContract, ugfResult }     = useUGFTransaction()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [lastTx, setLastTx] = useState(null)
+  const [error,   setError]   = useState(null)
+  const [success, setSuccess] = useState(null) // null | { txHash? }
 
   const soldOut = event.remaining <= 0
-  const canBuy = event.active && !soldOut
+  const canBuy  = event.active && !soldOut
+  const isLocal = [1337, 31337].includes(chainId)
 
+  // UGF async result (Base Sepolia path)
   useEffect(() => {
-    if (ugfResult?.txHash) setLastTx(ugfResult.txHash)
-  }, [ugfResult])
+    if (ugfResult?.txHash) {
+      setSuccess({ txHash: ugfResult.txHash })
+      onBuySuccess?.()
+    }
+  }, [ugfResult]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleBuy() {
     setError(null)
+    setSuccess(null)
     setLoading(true)
     try {
-      await executeContract('buyTicket', [event.id], event.ticketPrice)
+      if (demoMode) {
+        buyDemoTicket(event.id, address)
+        setSuccess({})
+        onBuySuccess?.()
+      } else {
+        await executeContract('buyTicket', [event.id], event.ticketPrice)
+        // Direct local / demo tx — executeContract awaited the receipt, so we're done
+        setSuccess({})
+        onBuySuccess?.()
+      }
     } catch (e) {
-      setError(e.message || 'Purchase failed')
+      setError(e.reason || e.message || 'Purchase failed')
     } finally {
       setLoading(false)
     }
@@ -38,7 +54,9 @@ export default function EventCard({ event }) {
           {formatEth(event.ticketPrice)}
         </span>
       </div>
+
       <p className="mt-2 text-slate-600">{event.description}</p>
+
       <dl className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
         <div className="flex flex-col gap-0.5">
           <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Venue</dt>
@@ -52,11 +70,16 @@ export default function EventCard({ event }) {
           <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Availability</dt>
           <dd className="font-medium text-slate-800">
             {event.ticketsSold} / {event.maxTickets} sold
+            {event.remaining > 0 && (
+              <span className="ml-2 text-xs font-semibold text-emerald-600">
+                ({event.remaining} left)
+              </span>
+            )}
           </dd>
         </div>
         <div className="flex flex-col gap-0.5">
           <dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">Organizer</dt>
-          <dd className="font-mono text-xs font-medium text-slate-500 truncate max-w-full" title={event.organizer}>
+          <dd className="font-mono text-xs font-medium text-slate-500 truncate" title={event.organizer}>
             {event.organizer}
           </dd>
         </div>
@@ -67,36 +90,38 @@ export default function EventCard({ event }) {
           type="button"
           onClick={handleBuy}
           disabled={!canBuy || !isConnected || loading}
-          className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-black active:scale-95 transition-all shadow-sm disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200 disabled:shadow-none"
+          className="rounded-lg bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-black active:scale-95 transition-all shadow-sm disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200 disabled:shadow-none"
         >
-          {loading
-            ? 'Opening UGF…'
-            : soldOut
-              ? 'Sold out'
-              : 'Buy Ticket (Mock USD gas)'}
+          {loading ? 'Processing…' : soldOut ? 'Sold Out' : !event.active ? 'Inactive' : 'Buy Ticket'}
         </button>
+
         {!isConnected && (
-          <span className="text-xs font-medium text-slate-500">Connect wallet to purchase</span>
+          <span className="text-xs font-medium text-slate-500">
+            Connect wallet or use <strong>⚡ Try Demo</strong>
+          </span>
         )}
       </div>
 
-      {error && <p className="mt-2 text-sm font-medium text-red-600">{error}</p>}
-      {lastTx && (
-        <p className="mt-2 text-sm font-semibold text-emerald-600">
-          Ticket purchased —{' '}
-          <a
-            href={explorerTxUrl(lastTx)}
-            target="_blank"
-            rel="noreferrer"
-            className="underline hover:text-emerald-700"
-          >
-            View tx
-          </a>
+      {error && (
+        <p className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm font-medium text-red-700">
+          {error}
         </p>
       )}
-      <p className="mt-3 text-xs font-medium text-slate-400">
-        Gas paid via UGF in Mock TYI USD — no Base Sepolia ETH required.
-      </p>
+
+      {success && (
+        <p className="mt-3 text-sm font-semibold text-emerald-600">
+          ✓ Ticket purchased!
+          {success.txHash && (
+            <>
+              {' '}—{' '}
+              <a href={explorerTxUrl(success.txHash)} target="_blank" rel="noreferrer"
+                className="underline hover:text-emerald-700">
+                View tx
+              </a>
+            </>
+          )}
+        </p>
+      )}
     </article>
   )
 }

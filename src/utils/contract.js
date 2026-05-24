@@ -16,7 +16,10 @@ export function getTicketContract(runner) {
 }
 
 export function getReadOnlyContract() {
-  return getTicketContract(new JsonRpcProvider(BASE_SEPOLIA_RPC_URL))
+  // Use localhost when VITE_LOCAL_NODE=true (set by deploy:local)
+  const isLocal = import.meta.env.VITE_LOCAL_NODE === 'true'
+  const rpc = isLocal ? 'http://127.0.0.1:8545' : BASE_SEPOLIA_RPC_URL
+  return getTicketContract(new JsonRpcProvider(rpc))
 }
 
 export function parseEvent(eventId, raw) {
@@ -26,7 +29,7 @@ export function parseEvent(eventId, raw) {
     description: raw.description,
     venue: raw.venue,
     eventDate: Number(raw.eventDate),
-    ticketPrice: raw.ticketPrice,
+    ticketPrice: BigInt(raw.ticketPrice.toString()),   // coerce Result → BigInt
     maxTickets: Number(raw.maxTickets),
     ticketsSold: Number(raw.ticketsSold),
     organizer: raw.organizer,

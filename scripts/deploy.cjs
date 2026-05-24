@@ -34,16 +34,29 @@ async function main() {
   const envPath = path.join(__dirname, '../.env')
   if (fs.existsSync(envPath)) {
     let env = fs.readFileSync(envPath, 'utf8')
+
+    // Update or add VITE_TICKET_CONTRACT_ADDRESS
     if (/^VITE_TICKET_CONTRACT_ADDRESS=.*/m.test(env)) {
-      env = env.replace(
-        /^VITE_TICKET_CONTRACT_ADDRESS=.*/m,
-        `VITE_TICKET_CONTRACT_ADDRESS=${address}`,
-      )
+      env = env.replace(/^VITE_TICKET_CONTRACT_ADDRESS=.*/m, `VITE_TICKET_CONTRACT_ADDRESS=${address}`)
     } else {
       env += `\nVITE_TICKET_CONTRACT_ADDRESS=${address}\n`
     }
+
+    // Mark as local deployment so frontend uses localhost:8545 for reads
+    const isLocalNetwork = hre.network.name === 'localhost' || hre.network.name === 'hardhat'
+    if (isLocalNetwork) {
+      if (/^VITE_LOCAL_NODE=.*/m.test(env)) {
+        env = env.replace(/^VITE_LOCAL_NODE=.*/m, 'VITE_LOCAL_NODE=true')
+      } else {
+        env += '\nVITE_LOCAL_NODE=true\n'
+      }
+    } else {
+      // Remove flag when deploying to a real network
+      env = env.replace(/^VITE_LOCAL_NODE=.*\n?/m, '')
+    }
+
     fs.writeFileSync(envPath, env)
-    console.log('Updated .env VITE_TICKET_CONTRACT_ADDRESS')
+    console.log('Updated .env VITE_TICKET_CONTRACT_ADDRESS and VITE_LOCAL_NODE')
   }
 }
 

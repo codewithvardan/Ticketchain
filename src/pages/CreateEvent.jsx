@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { parseEther } from 'ethers'
 import { useWallet } from '../context/WalletContext'
 import { useUGFTransaction } from '../hooks/useUGFTransaction'
 import { isContractConfigured, explorerTxUrl } from '../utils/contract'
+import { createDemoEvent } from '../utils/demo'
 
 export default function CreateEvent() {
-  const { isConnected } = useWallet()
+  const { isConnected, demoMode, address } = useWallet()
   const { executeContract, ugfResult } = useUGFTransaction()
+  const navigate = useNavigate()
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -38,14 +41,26 @@ export default function CreateEvent() {
       const ticketPrice = parseEther(form.ticketPrice || '0')
       const maxTickets = BigInt(form.maxTickets)
 
-      await executeContract('createEvent', [
-        form.name,
-        form.description,
-        form.venue,
-        eventTimestamp,
-        ticketPrice,
-        maxTickets,
-      ])
+      if (demoMode) {
+        createDemoEvent(
+          form.name,
+          form.description,
+          form.venue,
+          eventTimestamp,
+          ticketPrice,
+          maxTickets,
+          address
+        )
+      } else {
+        await executeContract('createEvent', [
+          form.name,
+          form.description,
+          form.venue,
+          eventTimestamp,
+          ticketPrice,
+          maxTickets,
+        ])
+      }
       setSuccess(true)
       setForm({
         name: '',
@@ -55,6 +70,8 @@ export default function CreateEvent() {
         ticketPrice: '0',
         maxTickets: '100',
       })
+      // Navigate to Browse Events after a short delay so the user sees their event
+      setTimeout(() => navigate('/events'), 1500)
     } catch (err) {
       setError(err.message || 'Failed to create event')
     } finally {
@@ -113,7 +130,7 @@ export default function CreateEvent() {
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block space-y-1.5">
-            <span className="text-sm font-semibold text-slate-700">Ticket price (ETH)</span>
+            <span className="text-sm font-semibold text-slate-700">Ticket price (Mock USD)</span>
             <input
               type="number"
               min="0"
@@ -136,27 +153,32 @@ export default function CreateEvent() {
           </label>
         </div>
 
-        {error && <p className="text-sm font-medium text-red-650">{error}</p>}
-        {success && ugfResult?.txHash && (
+        {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+        {success && (
           <p className="text-sm font-semibold text-emerald-600">
-            Event created successfully! —{' '}
-            <a
-              href={explorerTxUrl(ugfResult.txHash)}
-              target="_blank"
-              rel="noreferrer"
-              className="underline hover:text-emerald-700"
-            >
-              View transaction
-            </a>
+            ✓ Event created successfully!
+            {ugfResult?.txHash && (
+              <>
+                {' '}—{' '}
+                <a
+                  href={explorerTxUrl(ugfResult.txHash)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:text-emerald-700"
+                >
+                  View transaction
+                </a>
+              </>
+            )}
           </p>
         )}
 
         <button
           type="submit"
-          disabled={!isConnected || !isContractConfigured() || loading}
+          disabled={!isConnected || (!demoMode && !isContractConfigured()) || loading}
           className="w-full rounded-lg bg-slate-950 px-5 py-3 font-semibold text-white hover:bg-black active:scale-[0.99] transition-all shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:border disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed"
         >
-          {loading ? 'Opening UGF…' : 'Create Event'}
+          {loading ? 'Creating event…' : 'Create Event'}
         </button>
       </form>
     </section>
