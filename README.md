@@ -1,89 +1,181 @@
 # TicketChain
 
-Event ticketing dApp on **Base Sepolia** — ERC-721 ticket NFTs with gas paid via [Universal Gas Framework](https://universalgasframework.com) (Mock TYI USD, no ETH for gas).
+**Decentralized Event Ticketing on Base Sepolia**
 
-## Features
+A blockchain-based event ticketing platform that eliminates fake tickets and makes Web3 accessible by using Universal Gas Framework (UGF) - allowing users to pay gas fees with Mock USD instead of ETH.
 
-- MetaMask connection (Base Sepolia)
-- Create events on-chain
-- Browse and buy tickets
-- **Buy / create / verify** transactions use `@tychilabs/react-ugf` — users pay **Mock USD only** for gas
-- My Tickets (owned NFTs)
-- Verify / scan tickets at the door
+![TicketChain Demo](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Base Sepolia](https://img.shields.io/badge/Network-Base%20Sepolia-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## Smart contract
+---
 
-`contracts/TicketChain.sol` — ERC-721 enumerable with:
+## Problem Statement
 
-- `createEvent(name, description, venue, eventDate, ticketPrice, maxTickets)`
-- `buyTicket(eventId)` — payable; mints ticket NFT
-- `verifyTicket(tokenId)` — validates and marks ticket scanned
+Traditional blockchain ticketing has two major barriers:
+1. **Fake tickets** - Paper tickets can be forged
+2. **Gas fee complexity** - Users need ETH just to buy tickets, creating friction
 
-## Quick start
+TicketChain solves both by:
+- Issuing tickets as **ERC-721 NFTs** (unforgeable, blockchain-verified)
+- Using **Universal Gas Framework** so users pay gas with Mock USD, not ETH
 
-### 1. Install
+---
 
+# Features
+
+- *Browse Events** - View all available events with ticket availability
+- * Create Events** - Event organizers can create events and set ticket prices
+- * Buy Tickets** - Purchase tickets as NFTs using Mock USD (no ETH needed for gas)
+- * Verify Tickets** - Anyone can verify ticket authenticity on-chain
+- * My Tickets** - View all your owned ticket NFTs in one place
+- * MetaMask Integration** - Secure wallet connection
+
+---
+
+## Tech Stack
+
+### Frontend
+- **React** (Vite)
+- **TailwindCSS** - Styling
+- **React Router** - Navigation
+- **ethers.js** - Blockchain interactions
+
+### Blockchain
+- **Solidity** - Smart contract
+- **Base Sepolia** - Testnet (Chain ID: 84532)
+- **ERC-721** - NFT standard for tickets
+- **Universal Gas Framework (UGF)** - Gas abstraction layer
+
+### Development Tools
+- **Hardhat** - Smart contract deployment
+- **MetaMask** - Wallet provider
+- **Git/GitHub** - Version control
+
+---
+
+## 📋 Smart Contract
+
+The `TicketChain.sol` contract handles:
+-  Event creation with custom pricing and supply
+-  Ticket minting as ERC-721 NFTs
+-  Ticket verification and ownership tracking
+-  Transfer functionality
+
+**Contract Features:**
+```solidity
+- createEvent(name, date, venue, price, totalSupply)
+- buyTicket(eventId) → mints NFT to buyer
+- getEvent(eventId) → returns event details
+- verifyTicket(ticketId) → checks validity
+- getMyTickets(owner) → returns user's tickets
+```
+
+---
+
+## UGF Integration (Key Innovation)
+
+**Universal Gas Framework** allows users to pay transaction fees with Mock USD instead of ETH.
+
+**Traditional Web3:**
+- User needs ETH in wallet for gas
+- High barrier to entry for newcomers
+
+**With UGF:**
+- User pays with Mock USD (stablecoin)
+- UGF handles gas fees automatically
+- **No ETH required!** 
+
+This makes blockchain ticketing accessible to anyone, even without crypto knowledge.
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16+)
+- MetaMask browser extension
+- Git
+
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/codewithvardan/Ticketchain.git
+cd Ticketchain
+```
+
+2. **Install dependencies**
 ```bash
 npm install
 ```
 
-### 2. Compile contract
+3. **Set up MetaMask**
+- Add Base Sepolia network (Chain ID: 84532)
+- RPC URL: `https://sepolia.base.org`
 
-```bash
-npm run compile
-```
+4. **Get test tokens**
+- Get Mock USD from [UGF Faucet](https://universalgasframework.com/faucets)
 
-### 3. Deploy to Base Sepolia (UGF — Mock USD gas)
-
-Create `.env` and set `PRIVATE_KEY` for your MetaMask wallet. **No Base Sepolia ETH required** — deployment uses UGF (`npm run deploy` pays gas in **Mock TYI USD**).
-
-1. Get Mock TYI USD: [UGF Faucets](https://universalgasframework.com/faucets)
-2. Add `PRIVATE_KEY` to `.env` (never commit this file)
-3. Deploy:
-
-```bash
-npm run deploy
-```
-
-This writes `src/contracts/TicketChain.json` with `address` and `abi`.
-
-ETH-only deploy (legacy): `npm run deploy:eth`
-
-### 4. Run frontend
-
+5. **Run the app**
 ```bash
 npm run dev
 ```
 
-### 5. Testnet assets
+6. **Open browser**
+- Navigate to `http://localhost:5173`
 
-- Add Base Sepolia in MetaMask (chain ID `84532`)
-- Get **Mock TYI USD** for UGF gas: [UGF Faucets](https://universalgasframework.com/faucets)
-- Ticket price (if not free) is paid in ETH on-chain via the buy transaction `value`
+--
+##  Future Enhancements
 
-## Project structure
+- [ ] QR code generation for tickets
+- [ ] Ticket resale marketplace with royalties
+- [ ] Email notifications for purchases
+- [ ] Event analytics dashboard for organizers
+- [ ] Support for multiple blockchains
+- [ ] Mobile app (React Native)
+- [ ] IPFS integration for event metadata
 
-```
-contracts/          Solidity TicketChain
-scripts/deploy.cjs  Deploy + export ABI
-src/
-  components/       Layout, ConnectWallet, EventCard
-  context/          WalletContext (MetaMask)
-  hooks/            useUGFTransaction
-  pages/            Home, Browse, Create, My Tickets, Verify
-  contracts/        TicketChain.json (ABI + address)
-  utils/            constants, contract helpers
-```
+---
 
-## Tech stack
+## Hackathon Submission
 
-- React (Vite), TailwindCSS, React Router
-- ethers.js v6
-- @tychilabs/react-ugf (testnet mode)
-- Hardhat + OpenZeppelin ERC-721
+**Built for:** [ HackwithMumbai 3.0] - UGF Track
 
-## Networks
+**Category:** Decentralized Applications (dApps)
 
-| Network       | Chain ID |
-|---------------|----------|
-| Base Sepolia  | 84532    |
+**Key Innovation:** Gas abstraction using Universal Gas Framework - making blockchain ticketing accessible without requiring users to own ETH.
+
+---
+
+## Resources
+
+- [UGF Documentation](https://universalgasframework.com/docs)
+- [Base Sepolia Explorer](https://sepolia.basescan.org)
+- [UGF Faucet](https://universalgasframework.com/faucets)
+- [Hardhat Documentation](https://hardhat.org/docs)
+
+---
+
+##  License
+
+This project is licensed under the MIT License.
+
+---
+
+##  Author
+
+**Vardan Sunil Darunte**
+- GitHub: [@codewithvardan](https://github.com/codewithvardan)
+
+---
+
+## Acknowledgments
+
+- Universal Gas Framework team for making Web3 accessible
+- Base team for the Sepolia testnet
+- OpenZeppelin for secure smart contract libraries
+
+---
+
+** If you like this project, please give it a star on GitHub!**
